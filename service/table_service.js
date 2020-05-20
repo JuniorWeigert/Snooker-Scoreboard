@@ -9,21 +9,22 @@ class TabelaService {
   }
 
   async createTable(req,res){
-    let newTable = await this.tableRepository.createTeam(req.body);
+    let newTable = await this.tableRepository.createTable(req.body);
     
     if(!newTable.success){
       res.status(400).send(newTable.message);
+      return;
     }
     res.status(200).send(newTable.message);
   }
 
   async listTables(req,res){
-    let tables = await this.tableRepository.getTables()
+    let tables = await this.tableRepository.getTables();
     if(!tables.success){
       res.status(400).send(tables.message);
+      return;
     }
-
-    res.status(200).send(tables.data);
+    res.status(200).json(tables);
     
   }
 
@@ -38,6 +39,7 @@ class TabelaService {
     
     if(!table.success){
       res.status(400).send(table.message);
+      return;
     }
     res.status(200).send(data);
   }
@@ -47,6 +49,7 @@ class TabelaService {
 
     if(!teams.success){
       res.status(400).send(teams.message);
+      return;
     }
 
     res.status(200).json(teams)
@@ -58,17 +61,20 @@ class TabelaService {
 
     if(!teamId || !tableId){
       res.status(400).send('Invalid Parameters');
+      return;
     }
     let teamsQuantity = await this.tableRepository.getTeamsForTable(tableId);
-
+    
     if(teamsQuantity >= this.maxTeamOnTable){
       res.status(400).send('Table with max teams');
+      return;
     }
-    console.log(teamsQuantity)
+
     let insertedTeam = await this.tableRepository.insertTeamOnTable(teamId,tableId);
 
     if(!insertedTeam.success){
       res.status(400).send(insertedTeam.message);
+      return;
     }
 
     res.status(200).send(insertedTeam.message);
@@ -77,23 +83,19 @@ class TabelaService {
   }
 
   async addTeamPoints(req, res){
-    let {teamId, tableId} = req.body;
+    let {teamId, tableId, qtdePoints} = req.body;
 
-    if(!teamId || !tableId){
+    if(!req.body){
       res.status(400).send('Invalid Parameters');
-    }
-
-    let teamsPoints = await this.tableRepository.getTeamsForTable(teamId, tableId);
-    let maxPoints = await this.tableRepository.getTableMaxPoint(tableId);
-
-    if(teamsPoints >= maxPoints){
-      res.status(400).send('Team with Max points');
+      return;
     }
     
-    let insertedTeam = await this.tableRepository.insertTeamOnTable(teamId, tableId, teamPoints);
-
+    console.log(teamId, tableId, qtdePoints);
+    let insertedTeam = await this.tableRepository.addPointForTeam(teamId, tableId, qtdePoints);
+    console.log(insertedTeam);
     if(!insertedTeam.success){
       res.status(400).send(insertedTeam.message);
+      return;
     }
     
     res.status(200).send(insertedTeam.message);

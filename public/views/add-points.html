@@ -1,0 +1,103 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+  <div id="root">
+
+  </div>
+  <div class="container">
+    <br>
+    <a href="/tables" class="btn btn-primary">Voltar</a>
+  </div>
+ 
+
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+  <script>
+    let root = document.querySelector('#root');
+    let url = window.location.toString();
+    let path = url.replace('http://localhost:3000/add-points', '')
+    let table = JSON.parse(localStorage.getItem('table'));
+    let teamPoints = JSON.parse(localStorage.getItem('teamPoints'));
+
+    console.log(path)
+    console.log(teamPoints)
+
+    window.onload = ()=>{
+      axios({
+        method: 'GET',
+        url: '/get-team'+ path
+      }).then(resolve=>{
+        console.log(resolve)
+        root.insertAdjacentHTML('beforebegin', mountHtml(resolve));
+      })
+    }
+
+    const mountHtml= (res)=>{
+      if(teamPoints >= table.max_points){
+        return `
+          Impossivel adicionar pontos, pois o time já atingiu o maximo de pontos
+          
+          <a href="/tables" class="btn btn-success"> voltar</a>
+        `
+      }
+
+      return `
+      <div class="container">
+        <div class="row mb-3">
+          <div class="row">
+            Campeonato: ${table.name}
+            <br>
+            Maximo de pontos: ${table.max_points}
+            <br>
+            Regras: ${table.points_rule}
+            <br>
+            Time: ${res.data.team.data[0].name}
+            <br>
+            Pontos do time: ${teamPoints}
+          </div>
+          <hr>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+              <input type="text" id="points" class="form-control mb-2" placeholder="Pontos a adicionar">
+              <button id="btn-add" onclick="addPoint()" class="btn btn-outline-dark">Adicionar pontos</button>
+            </div>
+        </div>
+  </div>
+      `
+
+    }
+
+
+    const addPoint = ()=>{
+      let point = parseInt(document.querySelector('#points').value);
+      console.log((teamPoints+point),table.max_points)
+      if((teamPoints+point) > table.max_points){
+        alert('Numero de pontos excede o maximo da tabela');
+        return;
+      } else {
+        axios({
+        method:'POST',
+        url: '/add-points',
+        data:{
+          teamId: path.replace('/', ''),
+          tableId: table.id,
+          qtdePoints: teamPoints + point
+        }
+      }).then(resolve=>{
+        alert('Pontos inseridos com sucesso');
+        window.location = '/table/'+ table.id
+      })
+      }
+    }
+  </script>
+</body>
+</html>

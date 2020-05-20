@@ -5,9 +5,9 @@ class TableRepository{
    async createTable(table){
     return await connection('tabela').insert({
       name: table.name,
-      description: table.player_one,
-      reward: table.player_two,
-      max_points: table.points,
+      description: table.desciption,
+      reward: table.reward,
+      max_points: table.max_points,
       points_rule: table.points_rule
     })
     .then(()=>{
@@ -62,7 +62,7 @@ class TableRepository{
     return await connection('tabela')
     .join('team_tabela', 'tabela.id', 'team_tabela.tabela_id')
     .join('team', 'team_tabela.team_id', 'team.id').where('tabela.id', '=', tableId)
-    .select('team.name', 'team_tabela.team_points').orderBy('team_points', 'desc')
+    .select('team.name','team.id', 'team_tabela.team_points').orderBy('team_points', 'desc')
     .then((resolve)=>{
       console.log(resolve);
       return {success: true, message: 'Success to get a specific table', data: resolve}
@@ -137,7 +137,7 @@ class TableRepository{
   }
 
   async addPointForTeam(teamId, tableId, teamPoints){
-    return connection('team_tabela').update({team_points: teamPoints + 1 })
+    return connection('team_tabela').update({team_points: teamPoints })
     .where('team_tabela.team_id', '=', teamId).andWhere('team_tabela.tabela_id', '=', tableId)
     .then(()=>{
       return {success: true, message: 'Inserted Point'};
