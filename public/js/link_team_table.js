@@ -8,8 +8,9 @@ window.onload = ()=>{
     url: '/get-teams'
 
   }).then(resolve =>{
-    console.log(resolve);
     root.insertAdjacentHTML('beforebegin', mountHtml(resolve));
+  }).catch(err=>{
+    console.log(err);
   })
 }
 

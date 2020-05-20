@@ -21,19 +21,6 @@ class TableRepository{
     }); 
   }
 
-  async deleteTable(tableId){
-    return await connection('table').where('id', '=', tableId).del()
-    .then(()=>{
-      return {success: true, message: 'Success to Remove a Table'}
-    },
-    
-    (reject)=>{
-      return {success: false, message: reject.sqlMessage}
-    }).catch(err=>{
-      return {success: false, message: err.sqlMessage}
-    })
-  }
-
   async getTables(){
     return await connection('tabela').select('*')
       .then((resolve)=>{

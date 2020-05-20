@@ -90,9 +90,8 @@ class TabelaService {
       return;
     }
     
-    console.log(teamId, tableId, qtdePoints);
     let insertedTeam = await this.tableRepository.addPointForTeam(teamId, tableId, qtdePoints);
-    console.log(insertedTeam);
+    
     if(!insertedTeam.success){
       res.status(400).send(insertedTeam.message);
       return;
